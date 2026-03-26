@@ -31,10 +31,20 @@ fetch('data.geojson')
     L.geoJSON(data, {
       onEachFeature: function (feature, layer) {
         layer.bindPopup(
-          "<strong>" + (feature.properties.Name || "No name") + "</strong><br>" +
-          (feature.properties.Category || "") + "<br>" +
-          (feature.properties.Address || "")
-        );
+  "<strong>" + (feature.properties.Name || "No name") + "</strong><br>" +
+  (feature.properties.Category || "") + "<br><br>" +
+
+  (feature.properties["Street Address"] || "") + "<br>" +
+  (feature.properties.City || "") + ", " +
+  (feature.properties.State || "") + " " +
+  (feature.properties.ZIP || "") + "<br><br>" +
+
+  (feature.properties.Hours ? "<strong>Hours:</strong> " + feature.properties.Hours + "<br>" : "") +
+  (feature.properties.Phone ? "<strong>Phone:</strong> " + feature.properties.Phone + "<br>" : "") +
+  (feature.properties.Website ? "<a href='" + feature.properties.Website + "' target='_blank'>Website</a><br>" : "") +
+  (feature.properties["Description / Notes"] ? "<em>" + feature.properties["Description / Notes"] + "</em><br>" : "") +
+  (feature.properties.Eligibility ? "<strong>Eligibility:</strong> " + feature.properties.Eligibility : "")
+);
       }
     }).addTo(map);
   });
