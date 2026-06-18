@@ -46,7 +46,7 @@ function getColor(category) {
 fetch('6-18 Resources.geojson')
   .then(response => response.json())
   .then(data => {
-
+ console.log("FEATURE COUNT:", data.features.length);
     L.geoJSON(data, {
 
       pointToLayer: function(feature, latlng) {
