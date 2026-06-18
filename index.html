@@ -24,15 +24,42 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
   attribution: '© OpenStreetMap contributors'
 }).addTo(map);
 
+  function getColor(category) {
+    switch(category) {
+        case "Food Pantry":
+            return "green";
+
+        case "Free Meal":
+            return "blue";
+
+        case "Mobile Food Pantry":
+            return "red";
+
+        default:
+            return "gray";
+          }
+}
+
 // THIS WILL LOAD YOUR DATA NEXT
-fetch('data.geojson')
+fetch('6-18 Resources.geojson')
   .then(response => response.json())
   .then(data => {
     L.geoJSON(data, {
-      onEachFeature: function (feature, layer) {
+
+      pointToLayer: function(feature, latlng) {
+        return L.circleMarker(latlng, {
+          radius: 10,
+          fillColor: getColor(feature.properties.Category),
+          color: "#000",
+          weight: 1,
+          fillOpacity: 0.9
+        });
+      },
+
+      onEachFeature: function(feature, layer) {
         layer.bindPopup(
-  "<strong>" + (feature.properties.Name || "No name") + "</strong><br>" +
-  (feature.properties.Category || "") + "<br><br>" +
+          "<strong>" + (feature.properties.Name || "No name") + "</strong><br>" +
+          (feature.properties.Category || "") + "<br><br>" +
 
   (feature.properties["Street Address"] || "") + "<br>" +
   (feature.properties.City || "") + ", " +
@@ -42,8 +69,8 @@ fetch('data.geojson')
   (feature.properties.Hours ? "<strong>Hours:</strong> " + feature.properties.Hours + "<br>" : "") +
   (feature.properties.Phone ? "<strong>Phone:</strong> " + feature.properties.Phone + "<br>" : "") +
   (feature.properties.Website ? "<a href='" + feature.properties.Website + "' target='_blank'>Website</a><br>" : "") +
-  (feature.properties["Description / Notes"] ? "<em>" + feature.properties["Description / Notes"] + "</em><br>" : "") +
-  (feature.properties.Eligibility ? "<strong>Eligibility:</strong> " + feature.properties.Eligibility : "")
+  (feature.properties["Description / Notes1"] ? "<em>" + feature.properties["Description / Notes1"] + "</em><br>" : "") +
+  (feature.properties.Eligibility ? "<strong>Notes2:</strong> " + feature.properties.Eligibility : "")
 );
       }
     }).addTo(map);
