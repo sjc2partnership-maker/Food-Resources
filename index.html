@@ -24,20 +24,22 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
   attribution: '© OpenStreetMap contributors'
 }).addTo(map);
 
-  function getColor(category) {
+function getColor(category) {
+    console.log("Category is:", category);
+
     switch(category) {
         case "Food Pantry":
-            return "red";
+            return "green";
 
         case "Free Meals":
-            return "red";
+            return "blue";
 
         case "Mobile Food Pantry":
             return "red";
 
         default:
             return "gray";
-          }
+    }
 }
 
 // THIS WILL LOAD YOUR DATA NEXT
@@ -49,7 +51,7 @@ fetch('6-18 Resources.geojson')
       pointToLayer: function(feature, latlng) {
         return L.circleMarker(latlng, {
           radius: 10,
-          fillColor: "red",
+          fillColor: getColor(feature.properties.Category),
           color: "#000",
           weight: 1,
           fillOpacity: 0.9
