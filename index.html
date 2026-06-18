@@ -24,34 +24,16 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
   attribution: '© OpenStreetMap contributors'
 }).addTo(map);
 
-
-// THIS WILL LOAD YOUR DATA NEXT
-fetch('data.geojson')
+fetch('6-18 Resources.geojson')
   .then(response => response.json())
   .then(data => {
-    L.geoJSON(data, {
 
+    console.log("Loaded features:", data.features.length);
 
-      onEachFeature: function(feature, layer) {
-        layer.bindPopup(
-          "<strong>" + (feature.properties.Name || "No name") + "</strong><br>" +
-          (feature.properties.Category || "") + "<br><br>" +
+    L.geoJSON(data).addTo(map);
 
-  (feature.properties["Street Address"] || "") + "<br>" +
-  (feature.properties.City || "") + ", " +
-  (feature.properties.State || "") + " " +
-  (feature.properties.ZIP || "") + "<br><br>" +
-
-  (feature.properties.Hours ? "<strong>Hours:</strong> " + feature.properties.Hours + "<br>" : "") +
-  (feature.properties.Phone ? "<strong>Phone:</strong> " + feature.properties.Phone + "<br>" : "") +
-  (feature.properties.Website ? "<a href='" + feature.properties.Website + "' target='_blank'>Website</a><br>" : "") +
-  (feature.properties["Description / Notes1"] ? "<em>" + feature.properties["Description / Notes1"] + "</em><br>" : "") +
-  (feature.properties.Eligibility ? "<strong>Notes2:</strong> " + feature.properties.Eligibility : "")
-);
-      }
-    }).addTo(map);
-  });
-
+  })
+  .catch(err => console.error("GeoJSON error:", err));
 </script>
 
 </body>
