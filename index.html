@@ -26,7 +26,7 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 
 
 // THIS WILL LOAD YOUR DATA NEXT
-fetch('6-18 Resources.geojson')
+fetch('6-18Resources.geojson')
   .then(response => response.json())
   .then(data => {
     L.geoJSON(data, {
