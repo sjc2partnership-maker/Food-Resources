@@ -1,40 +1,108 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Food Resources Map</title>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SJC² Food & Resource Map</title>
 
-  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-  
+  <!-- Leaflet CSS -->
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+  />
+
   <style>
-    #map { height: 100vh; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: Arial, sans-serif; }
+    #map { height: 100vh; width: 100%; }
+
+    .popup-content { font-size: 14px; line-height: 1.6; max-width: 260px; }
+    .popup-content h3 { font-size: 15px; margin-bottom: 4px; }
+    .popup-content .category { font-style: italic; color: #555; margin-bottom: 6px; }
+    .popup-content .field { margin-bottom: 3px; }
+    .popup-content a { color: #1a73e8; }
+    .popup-content .verified { font-size: 12px; color: #888; margin-top: 6px; }
   </style>
 </head>
 <body>
 
-<div id="map"></div>
+  <div id="map"></div>
 
-<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-<script>
-var map = L.map('map').setView([39.7392, -104.9903], 10);
+  <script>
+    // Initialize map centered on Denver/Lakewood area
+    const map = L.map('map').setView([39.7, -105.08], 11);
 
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-  attribution: '© OpenStreetMap contributors'
-}).addTo(map);
+    // OpenStreetMap tile layer
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+      maxZoom: 19
+    }).addTo(map);
 
-fetch('6-18 Resources.geojson')
-  .then(response => response.json())
-  .then(data => {
+    // Helper: extract plain text from a field that may contain markdown-style links
+    function cleanText(val) {
+      if (!val) return '';
+      // Strip markdown links like [text](url) and return just the text
+      return String(val).replace(/\[([^\]]+)\]\([^)]+\)/g, '$1').trim();
+    }
 
-    console.log("Loaded features:", data.features.length);
+    // Helper: build popup HTML from a feature's properties
+    function buildPopup(p) {
+      const name     = cleanText(p['Name'])     || '';
+      const category = cleanText(p['Category']) || '';
+      const address  = cleanText(p['Address'])  || '';
+      const city     = cleanText(p['City'])     || '';
+      const state    = cleanText(p['State'])    || '';
+      const zip      = p['Zip']  ? String(p['Zip'])  : '';
+      const phone    = p['Phone']   || '';
+      const hours    = p['Hours']   || '';
+      const website  = p['Website'] || '';
+      const gmaps    = p['Google Maps'] || '';
+      const notes1   = p['Notes1']  || '';
+      const notes2   = p['Notes2']  || '';
+      const verified = p['Verified'] || '';
 
-    L.geoJSON(data).addTo(map);
+      const fullAddress = [address, city, state, zip].filter(Boolean).join(', ');
 
-  })
-  .catch(err => console.error("GeoJSON error:", err));
-</script>
+      let html = `<div class="popup-content">`;
+      html += `<h3>${name}</h3>`;
+      if (category) html += `<div class="category">${category}</div>`;
+      if (fullAddress) html += `<div class="field">📍 ${fullAddress}</div>`;
+      if (phone)    html += `<div class="field">📞 <a href="tel:${phone}">${phone}</a></div>`;
+      if (hours)    html += `<div class="field">🕐 ${hours}</div>`;
+      if (notes1)   html += `<div class="field">${notes1}</div>`;
+      if (notes2)   html += `<div class="field">${notes2}</div>`;
+      if (website)  html += `<div class="field"><a href="${website}" target="_blank" rel="noopener">Website</a></div>`;
+      if (gmaps)    html += `<div class="field"><a href="${gmaps}" target="_blank" rel="noopener">Google Maps</a></div>`;
+      if (verified) html += `<div class="verified">Verified: ${verified}</div>`;
+      html += `</div>`;
+
+      return html;
+    }
+
+    // Load GeoJSON and add markers
+    fetch('6-18Resources.json')
+      .then(response => {
+        if (!response.ok) throw new Error('Could not load 6-18Resources.json — check the file name and location.');
+        return response.json();
+      })
+      .then(data => {
+        L.geoJSON(data, {
+          onEachFeature: function (feature, layer) {
+            if (feature.properties) {
+              layer.bindPopup(buildPopup(feature.properties));
+            }
+          }
+        }).addTo(map);
+      })
+      .catch(err => {
+        console.error(err);
+        alert('Map error: ' + err.message);
+      });
+  </script>
 
 </body>
 </html>
+
